@@ -27,6 +27,14 @@ class JsonProgressEmitter : public teknegram::ProgressEmitter {
         }
 };
 
+class CliProgressEmitter : public teknegram::ProgressEmitter {
+    public:
+        virtual void emit(const std::string& message, int percent) const {
+            std::cerr << "[" << percent << "%] " << message << "\n";
+            std::cerr.flush();
+        }
+};
+
 bool HasNonWhitespace(const std::string& value) {
     for (std::string::size_type i = 0; i < value.size(); ++i) {
         const char ch = value[i];
@@ -101,7 +109,8 @@ int RunCliMode(int argc, char** argv) {
         kInjectedArtifactsDir,
         "Artifacts directory");
 
-    std::cout << RunExtraction(corpus_name, artifacts_dir, 0) << "\n";
+    CliProgressEmitter progress_emitter;
+    std::cout << RunExtraction(corpus_name, artifacts_dir, &progress_emitter) << "\n";
     return 0;
 }
 
