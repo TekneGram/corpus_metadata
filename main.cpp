@@ -3,6 +3,8 @@
 #include <stdexcept>
 #include <string>
 
+#include <unistd.h>
+
 #include "../corpus_builder/third_party/nlohmann/json.hpp"
 #include "orchestration_layer/corpus_metadata_engine.hpp"
 #include "shared_layer/progress_emitter.hpp"
@@ -161,11 +163,12 @@ int RunJsonMode(const std::string& input_text) {
 } // namespace
 
 int main(int argc, char** argv) {
-    const std::string stdin_text = ReadStdin();
-
     try {
-        if (HasNonWhitespace(stdin_text)) {
-            return RunJsonMode(stdin_text);
+        if (!isatty(STDIN_FILENO)) {
+            const std::string stdin_text = ReadStdin();
+            if (HasNonWhitespace(stdin_text)) {
+                return RunJsonMode(stdin_text);
+            }
         }
         return RunCliMode(argc, argv);
     } catch (const std::exception& ex) {
